@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08060b">
+  <title>NextWatchVidio</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #08060b;
+      --panel: #111015;
+      --text: #fff;
+      --muted: #b9b5c0;
+      --pink: #ff2f75;
+      --purple: #8d35ff;
+      --line: rgba(255,255,255,.09);
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(255,0,190,.10), transparent 34rem),
+        radial-gradient(ellipse at 90% 100%, rgba(123,0,255,.10), transparent 36rem),
+        var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    a { color: inherit; }
+    .page {
+      width: min(100% - 24px, 480px);
+      margin: 0 auto;
+      padding: 14px 0 32px;
+    }
+    .header { padding: 8px 4px 16px; }
+    .logo {
+      font-size: clamp(21px, 5vw, 25px);
+      font-weight: 850;
+      letter-spacing: .3px;
+    }
+    .logo span { color: var(--pink); }
+    .ad-box {
+      margin: 12px 0;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(17,16,21,.9);
+      overflow: hidden;
+    }
+    .ads-label {
+      margin: 0 0 8px;
+      color: #898391;
+      text-align: center;
+      font-size: 9px;
+      letter-spacing: 1.4px;
+    }
+    .ad-content { min-width: 0; overflow-wrap: anywhere; }
+    .video-card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #0e0c11;
+      box-shadow: 0 12px 38px rgba(0,0,0,.28), 0 0 25px rgba(255,0,190,.08);
+    }
+    .photo-box {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: #050505;
+    }
+    .photo-link {
+      display: block;
+      position: relative;
+      width: 100%;
+      cursor: pointer;
+      text-decoration: none;
+      outline-offset: -4px;
+    }
+    #videoPoster {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 72vh;
+      object-fit: contain;
+      background: #050505;
+      visibility: hidden;
+    }
+    .photo-loading {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 260px;
+      background: radial-gradient(circle, rgba(35,0,45,.96), #050505 72%);
+      transition: opacity .25s ease, visibility .25s ease;
+    }
+    .photo-loading.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loading-logo {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255,255,255,.17);
+      border-top-color: var(--pink);
+      border-right-color: var(--purple);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      box-shadow: 0 0 20px rgba(255,0,210,.25);
+    }
+    .loading-text {
+      position: absolute;
+      top: calc(50% + 38px);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .content { padding: clamp(14px, 4vw, 18px); }
+    .title {
+      margin: 0 0 10px;
+      font-size: clamp(18px, 4.8vw, 21px);
+      font-weight: 850;
+      line-height: 1.3;
+    }
+    .description {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .smartlink-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 50px;
+      padding: 14px 16px;
+      border: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #ff006a, #8d00ff);
+      box-shadow: 0 8px 24px rgba(255,0,130,.2);
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 850;
+      letter-spacing: .35px;
+      overflow-wrap: anywhere;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    .smartlink-btn:active { transform: scale(.985); opacity: .9; }
+    .sponsored-note {
+      margin: 9px 2px 0;
+      color: #8e8996;
+      font-size: 10px;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .trending {
+      margin-top: 16px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(17,16,21,.82);
+    }
+    .trending-title {
+      margin-bottom: 7px;
+      color: var(--pink);
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .trending-text { color: #d0ccd5; font-size: 12px; line-height: 1.55; }
+    .footer { padding: 22px 8px 0; color: #716b78; font-size: 10px; text-align: center; }
+    @media (max-width: 360px) {
+      .page { width: min(100% - 16px, 480px); padding-top: 10px; }
+      .content { padding: 13px; }
+      .ad-box { padding: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="logo">NextWatch<span>Vidio</span></div>
+    </header>
+
+    <!-- Native ad Monetag yang sudah ada: bagian atas -->
+    <section class="ad-box" aria-label="Advertisement">
+      <p class="ads-label">ADVERTISEMENT</p>
+      <div class="ad-content">
+        <script data-cfasync="false" async type="text/javascript"
+          src="//qw.rolledipocras.com/tiTtAiKEeLuZ/151239"></script>
+      </div>
+    </section>
+
+    <article class="video-card">
+      <div class="photo-box">
+        <a
+          class="photo-link"
+          id="photoAdLink"
+          href="https://uplcm.com/4/12078094"
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          aria-label="Open sponsored link in a new tab"
+          title="Open sponsored link"
+        >
+          <div class="photo-loading" id="photoLoading" aria-live="polite">
+            <div class="loading-logo" aria-hidden="true"></div>
+            <div class="loading-text">LOADING...</div>
+          </div>
+          <img
+            id="videoPoster"
+            src="https://cdn.aceimg.com/o6efSFJ5J.jpg"
+            alt="Preview image — click to open the sponsored link"
+            fetchpriority="high"
+          >
+        </a>
+      </div>
+
+      <div class="content">
+        <h1 class="title">Watch the full video</h1>
+        <p class="description">
+          Tap the button below to continue. The link opens a sponsored destination in a new tab.
+        </p>
+
+        <!-- Direct Link Monetag pada tombol -->
+        <a
+          class="smartlink-btn"
+          id="smartlinkButton"
+          href="https://uplcm.com/4/12078094"
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+        >🔥 WATCH FULL VIDS</a>
+        <p class="sponsored-note">Sponsored link · Opens in a new tab</p>
+
+        <!-- Native ad Monetag yang sudah ada: bagian bawah -->
+        <section class="ad-box" aria-label="Advertisement">
+          <p class="ads-label">ADVERTISEMENT</p>
+          <div class="ad-content" id="native-ad-script-slot">
+            <script data-cfasync="false" async type="text/javascript"
+              src="//ju.bionomysolera.com/tKxL7nY316cl3r5/155722"></script>
+          </div>
+        </section>
+      </div>
+    </article>
+
+    <section class="trending">
+      <div class="trending-title">🔥 TRENDING NOW</div>
+      <div class="trending-text">
+        Discover the latest videos. Select the button to continue to the sponsored destination.
+      </div>
+    </section>
+
+    <footer class="footer">© 2026 NextWatchVidio</footer>
+  </main>
+
+  <script>
+    (() => {
+      const poster = document.getElementById("videoPoster");
+      const loading = document.getElementById("photoLoading");
+
+      if (!poster || !loading) return;
+
+      const revealImage = () => {
+        poster.style.visibility = "visible";
+        loading.classList.add("hide");
+        window.setTimeout(() => loading.remove(), 300);
+      };
+
+      // Tampilkan gambar segera setelah selesai dimuat; tetap batasi delay minimum 300 ms.
+      const startedAt = Date.now();
+      const finish = () => {
+        const delay = Math.max(0, 300 - (Date.now() - startedAt));
+        window.setTimeout(revealImage, delay);
+      };
+
+      if (poster.complete) {
+        finish();
+      } else {
+        poster.addEventListener("load", finish, { once: true });
+        poster.addEventListener("error", () => {
+          loading.classList.add("hide");
+          window.setTimeout(() => loading.remove(), 300);
+          poster.style.visibility = "visible";
+          poster.alt = "Preview image could not be loaded";
+        }, { once: true });
+      }
+    })();
+  </script>
+
+  <!-- Histats analytics: dipertahankan dari kode awal -->
+  <script type="text/javascript">
+    var _Hasync = _Hasync || [];
+    _Hasync.push(['Histats.start', '1,5055942,4,0,0,0,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
+
+    (function () {
+      var hs = document.createElement('script');
+      hs.type = 'text/javascript';
+      hs.async = true;
+      hs.src = '//s10.histats.com/js15_as.js';
+      (document.getElementsByTagName('head')[0] ||
+       document.getElementsByTagName('body')[0]).appendChild(hs);
+    })();
+  </script>
+  <noscript>
+    <a href="/" target="_blank" rel="noopener noreferrer">
+      <img src="//sstatic1.histats.com/0.gif?4950000&amp;101" alt="" width="1" height="1">
+    </a>
+  </noscript>
+</body>
+</html>
